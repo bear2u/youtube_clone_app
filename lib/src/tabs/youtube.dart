@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:youtube_clone_app/src/commons/colors.dart';
 import 'package:youtube_clone_app/src/commons/transparent_image.dart';
+import 'package:youtube_clone_app/src/models/VideoData.dart';
+import 'package:youtube_clone_app/src/models/ChannelData.dart';
 
 class YoutubeScreen extends StatefulWidget {
   @override
@@ -9,11 +11,8 @@ class YoutubeScreen extends StatefulWidget {
 }
 
 class YoutubeState extends State<YoutubeScreen> {
-  List<String> items = [
-    "1",
-    "2",
-    "3"
-  ];
+  List<VideoData> videos = [];
+
   @override
   Widget build(BuildContext context) {
     return _createListBuilder();
@@ -21,7 +20,7 @@ class YoutubeState extends State<YoutubeScreen> {
 
   _createListBuilder() {
     return ListView.builder(
-        itemCount: items.length,
+        itemCount: videos.length,
         itemBuilder: (BuildContext context, int index) => _buildListItem(context, index)
     );
   }
@@ -53,7 +52,7 @@ class YoutubeState extends State<YoutubeScreen> {
     aspectRatio: 1.8,
     child: FadeInImage.memoryNetwork(
         placeholder: kTransparentImage,
-        image: "https://i.ytimg.com/vi/LzE45Wfd5zo/maxresdefault.jpg",
+        image: videos[index].getThumbnailUrl,
         fit: BoxFit.cover
     )
   );
@@ -70,7 +69,7 @@ class YoutubeState extends State<YoutubeScreen> {
               shape: BoxShape.circle,
               color: BorderColor,
               image: DecorationImage(
-                image: NetworkImage("https://i.ytimg.com/vi/LzE45Wfd5zo/maxresdefault.jpg"),
+                image: NetworkImage(videos[index].getChannelData.getThumbnailUrl),
                 fit: BoxFit.contain,
               )
           ),
@@ -83,7 +82,7 @@ class YoutubeState extends State<YoutubeScreen> {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                    "title1",
+                    videos[index].getTitle,
                     maxLines: 2,
                     style: TextStyle(
                         fontWeight: FontWeight.w400,
@@ -96,7 +95,7 @@ class YoutubeState extends State<YoutubeScreen> {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "title2",
+                  "${videos[index].getChannelData.getName}",
                   maxLines: 2,
                   textAlign: TextAlign.left,
                   style: TextStyle(color: TextColor,),
