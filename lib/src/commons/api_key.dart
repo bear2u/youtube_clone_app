@@ -1,1 +1,1 @@
-const youtubeApiKey = "InsertYourYoutubeApiKey";
+const youtubeApiKey = "test";

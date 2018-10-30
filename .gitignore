@@ -38,7 +38,7 @@ build/
 **/android/**/GeneratedPluginRegistrant.java
 
 # api key
-
+**/lib/src/commons/api_key.dart
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
