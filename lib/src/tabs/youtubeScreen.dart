@@ -3,32 +3,62 @@ import 'package:flutter/material.dart';
 import 'package:youtube_clone_app/src/commons/colors.dart';
 import 'package:youtube_clone_app/src/commons/transparent_image.dart';
 import 'package:youtube_clone_app/src/models/VideoData.dart';
-import 'package:youtube_clone_app/src/models/ChannelData.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:youtube_clone_app/src/commons/api_key.dart';
+
 
 class YoutubeScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => YoutubeState();
+  _YoutubeState createState() => _YoutubeState();
 }
 
-class YoutubeState extends State<YoutubeScreen> {
-  List<VideoData> videos = [];
+class _YoutubeState extends State<YoutubeScreen> with AutomaticKeepAliveClientMixin<YoutubeScreen>{
+
+  @override
+  bool get wantKeepAlive => true;
+
+  Future<List<VideoData>> _getVideos;
+
+  @override
+  void initState() {
+    print("initState");
+    _getVideos = getVideos();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print("build");
+    super.build(context);
     return _createListBuilder();
   }
 
-  _createListBuilder() {
-    return ListView.builder(
-        itemCount: videos.length,
-        itemBuilder: (BuildContext context, int index) => _buildListItem(context, index)
-    );
-  }
+  _createListBuilder()  => FutureBuilder(
+    future: _getVideos,
+    builder: (BuildContext context, AsyncSnapshot snapshot){
+      switch(snapshot.connectionState) {
+        case ConnectionState.none:
+        case ConnectionState.waiting:
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        default :
+          var list = snapshot.data;
+          return ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) => _buildListItem(context, list[index])
+          );
+      }
+    },
+  );
 
-  _buildListItem(context, index) {
+
+  _buildListItem(context, video) {
     return InkWell(
       onTap: () {
-        Scaffold.of(context).showSnackBar(SnackBar(content: Text("clicked : $index")));
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("clicked : $video")));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -39,8 +69,8 @@ class YoutubeState extends State<YoutubeScreen> {
             child: Flex(
               direction: Axis.vertical,
               children: <Widget>[
-                _buildItemVideoThumbnail(index),
-                _myTubeVideoContent(index)
+                _buildItemVideoThumbnail(video),
+                _myTubeVideoContent(video)
               ],
             )
         ),
@@ -48,17 +78,17 @@ class YoutubeState extends State<YoutubeScreen> {
     );
   }
 
-  _buildItemVideoThumbnail(int index) => AspectRatio(
+  _buildItemVideoThumbnail(VideoData video) => AspectRatio(
     aspectRatio: 1.8,
     child: FadeInImage.memoryNetwork(
         placeholder: kTransparentImage,
-        image: videos[index].getThumbnailUrl,
+        image: video.getThumbnailUrl,
         fit: BoxFit.cover
     )
   );
 
   /// Video Content View builder at ListView Item Widget
-  _myTubeVideoContent(int index) => Container(
+  _myTubeVideoContent(VideoData video) => Container(
     alignment: Alignment.topCenter,
     margin: EdgeInsets.only(top: 10.0),
     child: Row(
@@ -69,7 +99,7 @@ class YoutubeState extends State<YoutubeScreen> {
               shape: BoxShape.circle,
               color: BorderColor,
               image: DecorationImage(
-                image: NetworkImage(videos[index].getChannelData.getThumbnailUrl),
+                image: NetworkImage(video.getChannelData.getThumbnailUrl),
                 fit: BoxFit.contain,
               )
           ),
@@ -82,7 +112,7 @@ class YoutubeState extends State<YoutubeScreen> {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                    videos[index].getTitle,
+                    video.getTitle,
                     maxLines: 2,
                     style: TextStyle(
                         fontWeight: FontWeight.w400,
@@ -95,7 +125,7 @@ class YoutubeState extends State<YoutubeScreen> {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "${videos[index].getChannelData.getName}",
+                  "${video.getChannelData.getName}",
                   maxLines: 2,
                   textAlign: TextAlign.left,
                   style: TextStyle(color: TextColor,),
@@ -117,5 +147,27 @@ class YoutubeState extends State<YoutubeScreen> {
     ),
   );
 
+  Future<List<VideoData>> getVideos() async {
+    List<VideoData> videoDataList = new List<VideoData>();
+    String dataURL = "https://www.googleapis.com/youtube/v3/videos?chart=mostpopular&regionCode=KR"
+        "&maxResults=20&key=$youtubeApiKey&part=snippet,contentDetails,statistics,status";
+
+    http.Response response = await http.get(dataURL);
+    dynamic resBody = json.decode(response.body);
+    List videosResData = resBody["items"];
+
+    videosResData.forEach((item) => videoDataList.add(new VideoData(item)));
+
+    for (var videoData in videoDataList) {
+      String channelDataURL = "https://www.googleapis.com/youtube/v3/channels?key=$youtubeApiKey&part=snippet&id=${videoData.getOwnerChannelId}";
+
+      http.Response channelResponse = await http.get(channelDataURL);
+      dynamic channelResBody = json.decode(channelResponse.body);
+
+      videoData.channelDataFromJson = channelResBody["items"][0];
+    }
+
+    return videoDataList;
+  }
 
 }

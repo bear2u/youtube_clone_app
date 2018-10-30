@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
-import 'package:youtube_clone_app/src/tabs/youtube.dart';
+import 'package:youtube_clone_app/src/tabs/youtubeScreen.dart';
 import 'package:youtube_clone_app/src/commons/colors.dart';
+
+
+import 'package:youtube_clone_app/src/tabs/NearByScreen.dart';
+import 'package:youtube_clone_app/src/tabs/ChatScreen.dart';
 
 class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => HomeState();
 }
 
-class HomeState extends State<Home> {
+class HomeState extends State<Home>{
+
   var _tabIndex = 0;
-  final List<Widget> _tabs = [YoutubeScreen(), YoutubeScreen(), YoutubeScreen()];
+  final List<Widget> _tabs = [YoutubeScreen(), ChatScreen(), NearByScreen()];
 
   //TabBar
   //AppBar
