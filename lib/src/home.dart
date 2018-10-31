@@ -21,6 +21,12 @@ class HomeState extends State<Home>{
   //AppBar
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildMatchAppbar(context),
@@ -63,6 +69,7 @@ class HomeState extends State<Home>{
           });
         },
       ));
+
 
   BottomNavigationBarItem _bottomNavigationBarItem(IconData icon, String text) {
     return new BottomNavigationBarItem(icon: Icon(icon), title: Text(text));

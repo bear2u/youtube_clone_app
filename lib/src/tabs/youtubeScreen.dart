@@ -138,14 +138,43 @@ class _YoutubeState extends State<YoutubeScreen> with AutomaticKeepAliveClientMi
         ),
         InkWell(
             child: Container(child: Icon(Icons.more_vert, size: 20.0, color: BorderColor),),
-            onTap: () {
-              print("clicked");
-            },
+            onTap: _modalBottomSheet,
             borderRadius: BorderRadius.circular(20.0)
         )
       ],
     ),
   );
+
+  _modalBottomSheet() => showModalBottomSheet(
+      context: context,
+      builder: (builder) => Container(
+        color: AppBackgroundColor,
+        child: new Column(
+          children: <Widget>[
+            _bottomSheetListTile(Icons.not_interested, "관심 없음", () => debugPrint("관심 없음")),
+            _bottomSheetListTile(Icons.access_time, "나중에 볼 동영상에 추가", () => debugPrint("나중에 볼 동영상에 추가")),
+            _bottomSheetListTile(Icons.playlist_add, "재생목록에 추가", () => debugPrint("재생목록에 추가")),
+            _bottomSheetListTile(Icons.share, "공유", () => debugPrint("공유")),
+            _bottomSheetListTile(Icons.flag, "신고", () => debugPrint("신고")),
+            Container(
+              decoration: new BoxDecoration(
+                  border: new Border(top: new BorderSide(color: BorderColor))
+              ),
+              child: _bottomSheetListTile(Icons.close, "취소", () => Navigator.pop(context)),
+            )
+          ],
+
+        ),
+      )
+  );
+
+  /// list tile builder for BottomSheet
+  _bottomSheetListTile(IconData icon, String text, Function onTap) =>
+      ListTile(
+          leading: Icon(icon, color: TextColor),
+          title: Text(text, style: TextStyle(color: TextColor),),
+          onTap: onTap
+      );
 
   Future<List<VideoData>> getVideos() async {
     List<VideoData> videoDataList = new List<VideoData>();
