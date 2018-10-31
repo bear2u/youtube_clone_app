@@ -19,24 +19,19 @@ class _YoutubeState extends State<YoutubeScreen> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
 
-  Future<List<VideoData>> _getVideos;
-
   @override
   void initState() {
-    print("initState");
-    _getVideos = getVideos();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     super.build(context);
     return _createListBuilder();
   }
 
   _createListBuilder()  => FutureBuilder(
-    future: _getVideos,
+    future: _getVideos(),
     builder: (BuildContext context, AsyncSnapshot snapshot){
       switch(snapshot.connectionState) {
         case ConnectionState.none:
@@ -176,7 +171,7 @@ class _YoutubeState extends State<YoutubeScreen> with AutomaticKeepAliveClientMi
           onTap: onTap
       );
 
-  Future<List<VideoData>> getVideos() async {
+  Future<List<VideoData>> _getVideos() async {
     List<VideoData> videoDataList = new List<VideoData>();
     String dataURL = "https://www.googleapis.com/youtube/v3/videos?chart=mostpopular&regionCode=KR"
         "&maxResults=20&key=$youtubeApiKey&part=snippet,contentDetails,statistics,status";
