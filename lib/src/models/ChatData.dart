@@ -1,16 +1,26 @@
+
 class ChatData {
   final String id;
-  final String name;
-  final String chatContent;
-  final bool isMine;
-  final String date;
+  final String message;
+  final String time;
+  final bool delivered;
+  final bool isYours;
 
   ChatData({
     this.id,
-    this.name,
-    this.chatContent,
-    this.isMine,
-    this.date
-  });
+    this.message,
+    this.time,
+    this.delivered,
+    this.isYours
+  }) : assert(message != null);
 
+  Map<String, dynamic> toMap() {
+    return <String,dynamic>{
+      "id": id,
+      "message": message,
+      "time": time,
+      "delivered": delivered,
+      "isYours": isYours
+    };
+  }
 }

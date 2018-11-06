@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_clone_app/src/models/ChatData.dart';
+import 'package:youtube_clone_app/src/models/TempChatData.dart';
 
 var currentUserEmail;
 
 class ChatMessageListItem extends StatelessWidget {
 
-  ChatData chatData;
+  TempChatData chatData;
 
   ChatMessageListItem({this.chatData}) : assert(chatData != null);
 

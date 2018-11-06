@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_clone_app/src/models/ChatData.dart';
+import 'package:youtube_clone_app/src/utils/fb_api_provider.dart';
 import 'package:youtube_clone_app/src/widgets/Bubble.dart';
 import 'package:intl/intl.dart';
 
@@ -10,8 +12,12 @@ class ChatScreen extends StatefulWidget {
 //채팅 화면
 class ChatState extends State<ChatScreen>{
 
+  FbApiProvider fbApiProvider = FbApiProvider();
+
+  double _ITEM_HEIGHT = 50.0;
   List<Bubble> items = [];
   TextEditingController _tec = TextEditingController();
+  ScrollController _scrollController = ScrollController();
 
   bool _isMe = true;
 
@@ -47,6 +53,7 @@ class ChatState extends State<ChatScreen>{
 
   Widget _buildListItems() {
     return ListView.builder(
+        controller: _scrollController,
         itemCount: items.length,
         itemBuilder: (BuildContext context, int index) => _generateItems(index)
     );
@@ -100,17 +107,41 @@ class ChatState extends State<ChatScreen>{
     return IconButton(
       icon: Icon(Icons.send),
       onPressed: () {
-        setState(() {
-          items.add(
-            Bubble(
-              message: _tec.text,
-              time: _getCurrentTime(),
-              delivered: true,
-              isYours: !_isMe,
-            ),
-          );
-          _tec.text = "";
-        });
+//        setState(() {
+//          items.add(
+//            Bubble(
+//              message: _tec.text,
+//              time: _getCurrentTime(),
+//              delivered: true,
+//              isYours: !_isMe,
+//            ),
+//          );
+//        });
+
+        final chatData = ChatData(
+          message: _tec.text,
+          time: _getCurrentTime(),
+          delivered: true,
+          isYours: !_isMe
+        );
+
+        fbApiProvider.saveChat(chatData);
+
+        _tec.text = "";
+
+//        _scrollController.addListener((){
+//          print("scrolled");
+//        });
+
+//        _scrollController.jumpTo(
+//            _ITEM_HEIGHT * items.length
+//        );
+//        _scrollController.animateTo(
+//          _ITEM_HEIGHT * items.length,
+//          duration: Duration(microseconds: 10),
+//          curve: Curves.easeOut,
+//        );
+
       },
     );
   }
