@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_clone_app/src/models/ChatData.dart';
-import 'package:youtube_clone_app/src/widgets/ChatMessageListItem.dart';
+import 'package:youtube_clone_app/src/widgets/Bubble.dart';
+import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -10,10 +10,10 @@ class ChatScreen extends StatefulWidget {
 //채팅 화면
 class ChatState extends State<ChatScreen>{
 
-  List<ChatData> items = [];
+  List<Bubble> items = [];
   TextEditingController _tec = TextEditingController();
 
-  bool _isMine = true;
+  bool _isMe = true;
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +21,17 @@ class ChatState extends State<ChatScreen>{
       child: Column(
         children: <Widget>[
           Flexible(
-            child: Container(
-              color: Color(0xFFbfd1dd),
-              child: _buildListItems(),
+            child:Stack(
+              children: <Widget>[
+                Positioned(
+                  top: 0.0,
+                  child: Image.asset(
+                    "assets/images/bg_whatsapp.png",
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                _buildListItems()
+              ],
             ),
           ),
           Divider(height: 1.0,),
@@ -58,13 +66,13 @@ class ChatState extends State<ChatScreen>{
               child: IconButton(
                   icon: Icon(
                       Icons.chat,
-                      color: _isMine
+                      color: _isMe
                         ? Theme.of(context).accentColor
                         : Colors.white
                   ),
                   onPressed: () {
                     setState(() {
-                      _isMine = !_isMine;
+                      _isMe = !_isMe;
                     });
                   }
               ),
@@ -94,11 +102,12 @@ class ChatState extends State<ChatScreen>{
       onPressed: () {
         setState(() {
           items.add(
-            ChatData(
-                name: "aaa",
-                chatContent: _tec.text,
-                isMine: _isMine
-            )
+            Bubble(
+              message: _tec.text,
+              time: _getCurrentTime(),
+              delivered: true,
+              isYours: !_isMe,
+            ),
           );
           _tec.text = "";
         });
@@ -107,6 +116,12 @@ class ChatState extends State<ChatScreen>{
   }
 
   _generateItems(int index) {
-    return ChatMessageListItem(chatData: items[index]);
+    return items[index];
+  }
+
+  _getCurrentTime() {
+    final f = new DateFormat('hh:mm');
+
+    return f.format(new DateTime.now());
   }
 }
