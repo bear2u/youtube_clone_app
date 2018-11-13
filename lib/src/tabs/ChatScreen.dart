@@ -158,7 +158,7 @@ class ChatState extends State<ChatScreen>{
   _generateItems(ChatData chatData) {
     return Bubble(
       message: chatData.message,
-      isOthers: chatData.senderEmail == userData.email, //다른 사람일 경우 true
+      isOthers: chatData.senderEmail != userData.email, //다른 사람일 경우 true
       time: chatData.time,
       delivered: true,
       profilePhotoUrl: chatData.senderPhotoUrl,
