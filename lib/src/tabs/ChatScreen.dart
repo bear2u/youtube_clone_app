@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_clone_app/src/models/ChatData.dart';
+import 'package:youtube_clone_app/src/models/UserData.dart';
 import 'package:youtube_clone_app/src/utils/fb_api_provider.dart';
 import 'package:youtube_clone_app/src/widgets/Bubble.dart';
 import 'package:intl/intl.dart';
+
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -20,6 +23,20 @@ class ChatState extends State<ChatScreen>{
   ScrollController _scrollController = ScrollController();
 
   bool _isMe = true;
+
+  var currentUserEmail;
+
+  UserData userData;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fbApiProvider.handleSignIn()
+        .then((UserData userData) {
+          this.userData = userData;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +69,23 @@ class ChatState extends State<ChatScreen>{
   }
 
   Widget _buildListItems() {
-    return ListView.builder(
-        controller: _scrollController,
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) => _generateItems(index)
+    return StreamBuilder(
+      stream: Firestore.instance.collection("room").snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if(!snapshot.hasData) return Text("Loading...");
+          List<ChatData> list = snapshot.data.documents.map((DocumentSnapshot document) {
+            return ChatData.fromMap(document);
+          }).toList();
+          print(list);
+          return ListView.builder(
+              controller: _scrollController,
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) => _generateItems(list[index])
+          );
+        }
     );
+    
+
   }
 
   Widget _buildBottomBar() {
@@ -72,15 +101,13 @@ class ChatState extends State<ChatScreen>{
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
                   icon: Icon(
-                      Icons.chat,
-                      color: _isMe
-                        ? Theme.of(context).accentColor
-                        : Colors.white
+                      Icons.photo,
+                      color: Theme.of(context).accentColor
                   ),
                   onPressed: () {
-                    setState(() {
-                      _isMe = !_isMe;
-                    });
+//                    setState(() {
+//                      _isMe = !_isMe;
+//                    });
                   }
               ),
             ),
@@ -107,47 +134,33 @@ class ChatState extends State<ChatScreen>{
     return IconButton(
       icon: Icon(Icons.send),
       onPressed: () {
-//        setState(() {
-//          items.add(
-//            Bubble(
-//              message: _tec.text,
-//              time: _getCurrentTime(),
-//              delivered: true,
-//              isYours: !_isMe,
-//            ),
-//          );
-//        });
 
         final chatData = ChatData(
           message: _tec.text,
           time: _getCurrentTime(),
           delivered: true,
-          isYours: !_isMe
+          sender: userData.displayName,
+          senderEmail: userData.email,
+          senderPhotoUrl: userData.photoUrl
         );
 
         fbApiProvider.saveChat(chatData);
 
         _tec.text = "";
 
-//        _scrollController.addListener((){
-//          print("scrolled");
-//        });
-
-//        _scrollController.jumpTo(
-//            _ITEM_HEIGHT * items.length
-//        );
-//        _scrollController.animateTo(
-//          _ITEM_HEIGHT * items.length,
-//          duration: Duration(microseconds: 10),
-//          curve: Curves.easeOut,
-//        );
 
       },
     );
   }
 
-  _generateItems(int index) {
-    return items[index];
+  _generateItems(ChatData chatData) {
+    return Bubble(
+      message: chatData.message,
+      isOthers: chatData.senderEmail == userData.email, //다른 사람일 경우 true
+      time: chatData.time,
+      delivered: true,
+      profilePhotoUrl: chatData.senderPhotoUrl
+    );
   }
 
   _getCurrentTime() {
@@ -155,4 +168,5 @@ class ChatState extends State<ChatScreen>{
 
     return f.format(new DateTime.now());
   }
+
 }
