@@ -20,7 +20,7 @@ class ChatData {
     this.senderEmail,
     this.imgUrl,
     this.senderPhotoUrl
-  }) : assert(message != null);
+  }) : assert(message != null || imgUrl != null);
 
   Map<String, dynamic> toMap() {
     return <String,dynamic>{

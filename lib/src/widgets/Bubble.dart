@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:youtube_clone_app/src/models/ChatData.dart';
 
 class Bubble extends StatelessWidget {
-  Bubble({this.message, this.time, this.delivered, this.isOthers, this.profilePhotoUrl});
+  Bubble({this.message, this.time, this.delivered, this.isOthers, this.profilePhotoUrl, this.imageUrl});
 
-  final String message, time, profilePhotoUrl;
+  final String message, time, profilePhotoUrl, imageUrl;
   final delivered, isOthers;
 
   @override
@@ -47,7 +47,9 @@ class Bubble extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 48.0),
-                child: Text(message),
+                child: message != null
+                  ? Text(message)
+                  : Image.network(imageUrl, width: 100.0,)
               ),
               Positioned(
                 bottom: 0.0,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_clone_app/src/models/ChatData.dart';
@@ -5,6 +7,8 @@ import 'package:youtube_clone_app/src/models/UserData.dart';
 import 'package:youtube_clone_app/src/utils/fb_api_provider.dart';
 import 'package:youtube_clone_app/src/widgets/Bubble.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ChatScreen extends StatefulWidget {
@@ -105,9 +109,7 @@ class ChatState extends State<ChatScreen>{
                       color: Theme.of(context).accentColor
                   ),
                   onPressed: () {
-//                    setState(() {
-//                      _isMe = !_isMe;
-//                    });
+                    _uploadImage();
                   }
               ),
             ),
@@ -159,7 +161,8 @@ class ChatState extends State<ChatScreen>{
       isOthers: chatData.senderEmail == userData.email, //다른 사람일 경우 true
       time: chatData.time,
       delivered: true,
-      profilePhotoUrl: chatData.senderPhotoUrl
+      profilePhotoUrl: chatData.senderPhotoUrl,
+      imageUrl: chatData.imgUrl,
     );
   }
 
@@ -167,6 +170,33 @@ class ChatState extends State<ChatScreen>{
     final f = new DateFormat('hh:mm');
 
     return f.format(new DateTime.now());
+  }
+
+  void _uploadImage() async {
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+    StorageReference storageReference = FirebaseStorage
+        .instance
+        .ref()
+        .child("img_" + timeStamp.toString() + ".jpg");
+    StorageUploadTask uploadTask = storageReference.putFile(imageFile);
+    uploadTask.onComplete
+        .then((StorageTaskSnapshot snapShot) async {
+          String imgUrl = await snapShot.ref.getDownloadURL();
+
+          final chatData = ChatData(
+              message: null,
+              time: _getCurrentTime(),
+              delivered: true,
+              sender: userData.displayName,
+              senderEmail: userData.email,
+              senderPhotoUrl: userData.photoUrl,
+              imgUrl: imgUrl
+          );
+
+          fbApiProvider.saveChat(chatData);
+
+        });
   }
 
 }
