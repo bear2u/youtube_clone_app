@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "760432321003",
+    "firebase_url": "https://flutterstudy-122fc.firebaseio.com",
+    "project_id": "flutterstudy-122fc",
+    "storage_bucket": "flutterstudy-122fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760432321003:android:877f455359781c0c",
+        "android_client_info": {
+          "package_name": "kr.pe.youtubecloneapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "760432321003-ucbdqnepsc8r0mdh31n0fpjv8k9ckuki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqLsHXFdcBpsE7qcyVuVCYX4C2PSh970k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
